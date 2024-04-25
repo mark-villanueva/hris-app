@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\EditProfile;
+use Filament\Navigation\NavigationGroup;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -29,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
+            ->emailVerification()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -36,6 +39,10 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('PUPlogo.png'))
             ->profile(EditProfile::class)
             ->sidebarFullyCollapsibleOnDesktop()
+            ->navigationGroups([
+                NavigationGroup::make('Admin Panel'),
+                NavigationGroup::make('User Management'),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -43,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                // Widgets\AccountWidget::class,
+                Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
@@ -60,9 +67,10 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugin(
-                FilamentFullCalendarPlugin::make()
-            );
+            ->plugins([
+                FilamentFullCalendarPlugin::make(), 
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+            ]);
             
     }
 }

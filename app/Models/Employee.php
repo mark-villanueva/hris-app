@@ -20,10 +20,14 @@ class Employee extends Model
         return $this->belongsTo(Positions::class);
     }
 
-
     public function salary(): BelongsTo
     {
         return $this->belongsTo(Salary::class);
+    }
+
+    public function schedules(): BelongsTo
+    {
+        return $this->belongsTo(Schedules::class);
     }
     
 }
