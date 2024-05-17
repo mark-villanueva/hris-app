@@ -29,11 +29,11 @@ return new class extends Migration
             $table->string('contact_name');
             $table->string('contact_number');
             $table->string('relationship');
-            $table->foreignId('departments_id')->constrained('departments')->cascadeOnDelete(); 
-            $table->foreignId('positions_id')->constrained('positions')->cascadeOnDelete();
+            $table->foreignId('departments_id')->constrained('departments')->cascadeOnDelete()->nullable(); 
+            $table->foreignId('positions_id')->constrained('positions')->cascadeOnDelete()->nullable();
             $table->string('description');
-            $table->foreignId('salary_id')->constrained('salaries')->cascadeOnDelete(); 
-            $table->string('status');
+            $table->foreignId('salary_id')->constrained('salaries')->cascadeOnDelete()->nullable(); 
+            $table->string('status')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->timestamps();

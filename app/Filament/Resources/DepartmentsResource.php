@@ -38,8 +38,7 @@ class DepartmentsResource extends Resource
                     ->label('Department Name'),
                 TextInput::make('manager')
                     ->required(),
-                TextArea::make('dept_description')
-                    ->label('Description')
+                TextArea::make('description')
                     ->columnSpan('full'),
                 
             ]);
@@ -52,7 +51,7 @@ class DepartmentsResource extends Resource
                 TextColumn::make('department')
                     ->label('Department Name'),
                 TextColumn::make('manager'),
-                TextColumn::make('dept_description'),
+                TextColumn::make('description'),
                 TextColumn::make('created_at')
             ])
             ->filters([

@@ -29,5 +29,10 @@ class Employee extends Model
     {
         return $this->belongsTo(Schedules::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
     
 }
