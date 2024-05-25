@@ -22,11 +22,21 @@ class LeaveRequestResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $user = Auth::user(); // Get the authenticated user here
         return $form
             ->schema([
-                // Forms\Components\Select::make('user_id')
-                //     ->label('Employee name')
-                //     ->relationship('user', 'name'),                    
+                Forms\Components\Select::make('user_id')
+                    ->label('Employee name')
+                    ->relationship('user', 'name')
+                    ->options(
+                        function () use ($user) {
+                            // Return an array containing only the authenticated user
+                            return [$user->getKey() => $user->name];
+                        }
+                    )
+                  
+                    ->default($user->getKey()) // Set the default value to the authenticated user's ID
+                    ->required(),                  
                 Forms\Components\Select::make('type')
                     ->required()
                     ->options([
@@ -57,12 +67,10 @@ class LeaveRequestResource extends Resource
             $query->where('user_id', Auth::id());
         }
 
-
         return $table
             ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
