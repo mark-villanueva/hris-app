@@ -34,9 +34,7 @@ class Attendance extends Page implements HasForms, HasTable
                     ->label('Employee')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
+                    ->label('Date')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_shift')

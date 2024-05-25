@@ -12,6 +12,7 @@ use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Support\Exceptions\Halt;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class EditPersonalProfile extends Page implements HasForms
 { 
@@ -30,8 +31,11 @@ class EditPersonalProfile extends Page implements HasForms
 
     public function mount(): void
     {
-        // Retrieve the most recently created or updated record
-        $this->post = Employee::latest()->firstOrNew();
+        // Retrieve the authenticated user
+        $user = Auth::user();
+        
+        // Retrieve the employee record associated with the authenticated user
+        $this->post = $user->employee ?? new Employee(); // If no employee record is associated, create a new one
 
         // Fill the form with data
         $this->form->fill($this->post->toArray());
@@ -125,11 +129,15 @@ class EditPersonalProfile extends Page implements HasForms
     public function save(): void
         {
             try {
-                $Employee = Employee::latest()->firstOrNew(); // Retrieve the most recently created or updated record, or instantiate a new one
+                // Retrieve the authenticated user
+                $user = Auth::user();
     
-                $Employee->fill($this->form->getState()); // Fill the model with form data
+                // Retrieve the associated employee record or create a new one
+                $employee = $user->employee ?? new Employee();
     
-                $Employee->save(); // Save the model to the database
+                $employee->fill($this->form->getState()); // Fill the model with form data
+    
+                $employee->save(); // Save the model to the database
     
             } catch (Halt $exception) {
                 return;

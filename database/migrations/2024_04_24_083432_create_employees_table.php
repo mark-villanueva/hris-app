@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('contact_number');
             $table->string('relationship');
             $table->foreignId('departments_id')->constrained('departments')->cascadeOnDelete()->nullable(); 
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->nullable(); 
             $table->foreignId('positions_id')->constrained('positions')->cascadeOnDelete()->nullable();
             $table->string('description');
             $table->foreignId('salary_id')->constrained('salaries')->cascadeOnDelete()->nullable(); 

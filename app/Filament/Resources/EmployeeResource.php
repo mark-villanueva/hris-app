@@ -99,6 +99,12 @@ class EmployeeResource extends Resource
                 ->columns(3),
             Section::make('Employment Profile')
             ->schema([
+                Forms\Components\Select::make('user_id')
+                    ->label('User Name')
+                    ->relationship('user', 'name')
+                    ->preload()
+                    ->searchable()
+                    ->required(),
                 Forms\Components\Select::make('departments_id')
                     ->label('Department')
                     ->relationship('departments', 'department')
@@ -138,6 +144,10 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('user.id')
+                ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('first_name')
