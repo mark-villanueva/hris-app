@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete(); 
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->time('start_shift')->nullable();
+            $table->time('end_shift')->nullable();
+            $table->timestamp('time_in')->nullable();
+            $table->timestamp('time_out')->nullable();
             $table->timestamps();
         });
     }

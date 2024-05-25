@@ -10,6 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\FilamentUser;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -54,5 +55,15 @@ class User extends Authenticatable implements FilamentUser
     public function employee(): HasOne
     {
         return $this->hasOne(Employee::class);
+    }
+
+    public function schedule(): HasOne
+    {
+        return $this->hasOne(Schedule::class);
+    }
+
+    public function leaverequest(): HasMany
+    {
+        return $this->hasMany(LeaveRequest::class);
     }
 }

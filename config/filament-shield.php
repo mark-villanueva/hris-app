@@ -26,7 +26,7 @@ return [
 
     'panel_user' => [
         'enabled' => true,
-        'name' => 'panel_user',
+        'name' => 'Employee',
     ],
 
     'permission_prefixes' => [

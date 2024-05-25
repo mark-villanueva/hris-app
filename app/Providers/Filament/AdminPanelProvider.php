@@ -68,7 +68,9 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentFullCalendarPlugin::make(), 
+                FilamentFullCalendarPlugin::make()
+                    ->selectable()
+                    ->editable(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
             ]);
             

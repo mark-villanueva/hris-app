@@ -4596,16 +4596,16 @@
         },
         {
             "name": "saade/filament-fullcalendar",
-            "version": "v3.2.1",
+            "version": "v3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/saade/filament-fullcalendar.git",
-                "reference": "c4e1cbcb27b8c3c12c1af00e9bcf5d7743626801"
+                "reference": "d40410e6bc46057628fb9fa8f62b6090452914d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/saade/filament-fullcalendar/zipball/c4e1cbcb27b8c3c12c1af00e9bcf5d7743626801",
-                "reference": "c4e1cbcb27b8c3c12c1af00e9bcf5d7743626801",
+                "url": "https://api.github.com/repos/saade/filament-fullcalendar/zipball/d40410e6bc46057628fb9fa8f62b6090452914d3",
+                "reference": "d40410e6bc46057628fb9fa8f62b6090452914d3",
                 "shasum": ""
             },
             "require": {
@@ -4658,7 +4658,7 @@
             ],
             "support": {
                 "issues": "https://github.com/saade/filament-fullcalendar/issues",
-                "source": "https://github.com/saade/filament-fullcalendar/tree/v3.2.1"
+                "source": "https://github.com/saade/filament-fullcalendar/tree/v3.2.2"
             },
             "funding": [
                 {
@@ -4666,7 +4666,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-28T16:30:33+00:00"
+            "time": "2024-05-02T13:04:39+00:00"
         },
         {
             "name": "spatie/color",
