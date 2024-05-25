@@ -12,7 +12,6 @@ class CreateSchedule extends CreateRecord
     // protected static ?string $title = 'Custom Page Title';
 
     protected static bool $canCreateAnother = false;
-    protected static bool $canCreate = false;
 
     protected function getFooterWidgets(): array
     {

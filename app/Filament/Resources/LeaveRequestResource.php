@@ -26,15 +26,20 @@ class LeaveRequestResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->label('Employee name')
                     ->relationship('user', 'name'),                    
-                Forms\Components\TextInput::make('type')
+                Forms\Components\Select::make('type')
                     ->required()
-                    ->maxLength(255),
+                    ->options([
+                        'Sick Leave' => 'Sick Leave',
+                        'Maternity Leave' => 'Maternity Leave',
+                        'Vacation Leave' => 'Vacation Leave',
+                        'Birthday Leave' => 'Birthday Leave',
+                    ])
+                    ->native(false),
                 Forms\Components\DatePicker::make('start_date')
                     ->required(),
                 Forms\Components\DatePicker::make('end_date')
                     ->required(),
                 Forms\Components\TextInput::make('status')
-                    ->required()
                     ->maxLength(255),
             ]);
     }
