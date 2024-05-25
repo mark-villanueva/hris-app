@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LeaveRequestResource extends Resource
@@ -23,9 +24,9 @@ class LeaveRequestResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label('Employee name')
-                    ->relationship('user', 'name'),                    
+                // Forms\Components\Select::make('user_id')
+                //     ->label('Employee name')
+                //     ->relationship('user', 'name'),                    
                 Forms\Components\Select::make('type')
                     ->required()
                     ->options([
@@ -46,7 +47,19 @@ class LeaveRequestResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $query = LeaveRequest::query();
+
+        // If the user ID is 1, show all leave requests
+        if (Auth::id() == 1) {
+            $query->withoutGlobalScope(SoftDeletingScope::class);
+        } else {
+            // Otherwise, show leave requests for the authenticated user
+            $query->where('user_id', Auth::id());
+        }
+
+
         return $table
+            ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
                     ->numeric()
