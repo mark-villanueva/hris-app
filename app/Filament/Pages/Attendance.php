@@ -18,12 +18,32 @@ use Illuminate\Support\Carbon;
 
 class Attendance extends Page implements HasForms, HasTable
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static string $view = 'filament.pages.attendance';
 
     use InteractsWithTable;
     use InteractsWithForms;
+
+    public function getTotalLates(): int
+    {
+        return Schedule::where('user_id', Auth::id())
+            ->where(function ($query) {
+                $query->whereRaw('TIME(time_in) > TIME(start_shift)')
+                      ->whereColumn('DATE(time_in)', 'DATE(start_date)');
+            })
+            ->count();
+    }
+
+    public function getTotalOvertime(): int
+    {
+        return Schedule::where('user_id', Auth::id())
+            ->where(function ($query) {
+                $query->whereRaw('TIME(time_out) > TIME(end_shift)')
+                      ->whereColumn('DATE(time_out)', 'DATE(start_date)');
+            })
+            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(time_out, end_shift)) / 3600'));
+    }
     
     public function table(Table $table): Table
     {
@@ -38,15 +58,35 @@ class Attendance extends Page implements HasForms, HasTable
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_shift')
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(function ($record) {
+                        return Carbon::parse($record->start_shift)->format('h:i A');
+                    }),                
                 Tables\Columns\TextColumn::make('end_shift')
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(function ($record) {
+                        return Carbon::parse($record->end_shift)->format('h:i A');
+                    }),
                 Tables\Columns\TextColumn::make('time_in')
                     ->label('Time In')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('time_out')
                     ->label('Time Out')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('is_late')
+                    ->label('Late')
+                    ->getStateUsing(function ($record) {
+                        $startShift = Carbon::parse($record->start_date . ' ' . $record->start_shift);
+                        $timeIn = Carbon::parse($record->time_in);
+                        return $timeIn->greaterThan($startShift) ? 'Yes' : 'No';
+                    }),
+                Tables\Columns\TextColumn::make('is_overtime')
+                    ->label('Overtime')
+                    ->getStateUsing(function ($record) {
+                        $endShift = Carbon::parse($record->start_date . ' ' . $record->end_shift);
+                        $timeOut = Carbon::parse($record->time_out);
+                        return $timeOut->greaterThan($endShift) ? 'Yes' : 'No';
+                    }),
             ])
             ->filters([
                 // ...
@@ -55,13 +95,13 @@ class Attendance extends Page implements HasForms, HasTable
                 Tables\Actions\Action::make('time_in')
                     ->label('Time In')
                     ->action(function ($record) {
-                        $record->update(['time_in' => Carbon::now()]);
+                        $record->update(['time_in' => Carbon::now()->timezone('Asia/Manila')]);
                     })
                     ->hidden(fn ($record) => $record->time_in !== null), // Hide if already clocked in
                 Tables\Actions\Action::make('time_out')
                     ->label('Time Out')
                     ->action(function ($record) {
-                        $record->update(['time_out' => Carbon::now()]);
+                        $record->update(['time_out' => Carbon::now()->timezone('Asia/Manila')]);
                     })
                     ->hidden(fn ($record) => $record->time_in === null || $record->time_out !== null), // Hide if not clocked in or already clocked out
             ])

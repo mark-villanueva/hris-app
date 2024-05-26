@@ -10,6 +10,7 @@ use Saade\FilamentFullCalendar\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use App\Models\Schedule;
+use Carbon\Carbon;
 
 class CalendarWidget extends FullCalendarWidget
 {
@@ -37,7 +38,7 @@ class CalendarWidget extends FullCalendarWidget
              ->mountUsing(
                  function (Schedule $record, Forms\Form $form, array $arguments) {
                      $form->fill([
-                         'name' => $record->name . '   ' . $record->start_shift . '  ' . $record->end_shift  ,
+                        'name' => $record->name . '   ' . Carbon::parse($record->start_shift)->format('h:i A') . '  ' . Carbon::parse($record->end_shift)->format('h:i A'),
                          'start_date' => $arguments['event']['start'] ?? $record->start_date,
                          'end_date' => $arguments['event']['end'] ?? $record->end_date
                      ]);
@@ -60,9 +61,11 @@ class CalendarWidget extends FullCalendarWidget
 
             Forms\Components\Grid::make()
                 ->schema([
-                    Forms\Components\TimePicker::make('start_shift'),
+                    Forms\Components\TimePicker::make('start_shift')
+                        ->seconds(false),
 
-                    Forms\Components\TimePicker::make('end_shift'),
+                    Forms\Components\TimePicker::make('end_shift')
+                        ->seconds(false),
                 ]),
         ];
     }
@@ -74,16 +77,19 @@ class CalendarWidget extends FullCalendarWidget
             ->where('end_date', '<=', $fetchInfo['end'])
             ->with('user') // Include the user relationship to fetch the name
             ->get()
-            ->map(
-                fn (Schedule $schedule) => [
+            ->map(function (Schedule $schedule) {
+                $startShift = Carbon::parse($schedule->start_shift)->format('h:i A');
+                $endShift = Carbon::parse($schedule->end_shift)->format('h:i A');
+    
+                return [
                     'id' => $schedule->id,
-                    'title' => $schedule->user->name . '   ' . $schedule->start_shift . ' to ' . $schedule->end_shift, 
+                    'title' => $schedule->user->name . '   ' . $startShift . ' to ' . $endShift,
                     'start' => $schedule->start_date,
                     'end' => $schedule->end_date, // Combine date and time
                     // 'url' => ScheduleResource::getUrl(name: 'view', parameters: ['record' => $schedule]),
                     'shouldOpenUrlInNewTab' => true
-                ]
-            )
+                ];
+            })
             ->all();
     }
 

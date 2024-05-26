@@ -3,13 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\LeaveRequestResource\Pages;
-use App\Filament\Resources\LeaveRequestResource\RelationManagers;
 use App\Models\LeaveRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,9 +34,8 @@ class LeaveRequestResource extends Resource
                             return [$user->getKey() => $user->name];
                         }
                     )
-                  
                     ->default($user->getKey()) // Set the default value to the authenticated user's ID
-                    ->required(),                  
+                    ->required(),
                 Forms\Components\Select::make('type')
                     ->required()
                     ->options([
@@ -71,6 +70,7 @@ class LeaveRequestResource extends Resource
             ->query($query)
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Employee name')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
@@ -82,13 +82,33 @@ class LeaveRequestResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable(),
-              
+
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn () => Auth::id() != 1),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn () => Auth::id() != 1),
+                Action::make('approve')
+                    ->label('Approve')
+                    ->action(function ($record) {
+                        $record->update(['status' => 'Approved']);
+                    })
+                    ->visible(fn ($record) => $record->status !== 'Approved' && Auth::id() == 1),
+                Action::make('reject')
+                    ->label('Reject')
+                    ->action(function ($record, array $data) {
+                        $record->update(['status' => 'Rejected: ' . $data['rejection_reason']]);
+                    })
+                    ->form([
+                        Forms\Components\Textarea::make('rejection_reason')
+                            ->label('Rejection Reason')
+                            ->required(),
+                    ])
+                    ->visible(fn ($record) => strpos($record->status, 'Rejected:') === false && Auth::id() == 1),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

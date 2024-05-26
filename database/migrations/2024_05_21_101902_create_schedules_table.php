@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->time('start_shift')->nullable();
             $table->time('end_shift')->nullable();
-            $table->timestamp('time_in')->nullable();
-            $table->timestamp('time_out')->nullable();
+            $table->datetime('time_in')->nullable();
+            $table->datetime('time_out')->nullable();
             $table->timestamps();
         });
     }
