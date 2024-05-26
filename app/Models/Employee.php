@@ -34,5 +34,10 @@ class Employee extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function payroll(): BelongsTo
+    {
+        return $this->belongsTo(Payroll::class);
+    }
     
 }

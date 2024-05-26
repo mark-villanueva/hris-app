@@ -24,6 +24,7 @@
  
          if (auth()->check() && auth()->user()->id == 1) {
              $actions[] = Actions\CreateAction::make()
+                 ->label('Add Holidays/Announcements')
                  ->mountUsing(
                      function (Forms\Form $form, array $arguments) {
                          $form->fill([

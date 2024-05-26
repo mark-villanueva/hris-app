@@ -26,5 +26,9 @@ class Schedule extends Model
         return $this->belongsTo(Attendance::class);
     }
 
+    public function payroll(): BelongsTo
+    {
+        return $this->belongsTo(Payroll::class);
+    }
    
 }
