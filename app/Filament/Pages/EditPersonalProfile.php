@@ -25,6 +25,7 @@ class EditPersonalProfile extends Page implements HasForms
     public $name= '';
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Profile';
 
     protected static string $view = 'filament.pages.edit-personal-profile';

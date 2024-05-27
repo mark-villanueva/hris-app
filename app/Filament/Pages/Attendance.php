@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
 class Attendance extends Page implements HasForms, HasTable
 {
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-
+    protected static ?int $navigationSort = 2;
     protected static string $view = 'filament.pages.attendance';
 
     use InteractsWithTable;

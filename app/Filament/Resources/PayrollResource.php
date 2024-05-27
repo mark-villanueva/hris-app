@@ -3,19 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PayrollResource\Pages;
-use App\Filament\Resources\PayrollResource\RelationManagers;
 use App\Models\Payroll;
-use App\Models\Schedule;
 use App\Models\User;
-use App\Models\Salary;
-use App\Models\Employee;
+use App\Filament\Widgets\EmployeeOverview;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PayrollResource extends Resource
 {
@@ -38,12 +33,34 @@ class PayrollResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $userPresentDays = EmployeeOverview::getUserPresentDays();
+        $totalRegularHours = EmployeeOverview::getTotalRegularHours();
+        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
+
         return $table
             ->query(User::query())
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Employee')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('days_present')
+                    ->label('Days Present')
+                    ->sortable()
+                    ->getStateUsing(function (User $record) use ($userPresentDays) {
+                        return $userPresentDays[$record->id] ?? 0;
+                    }),
+                Tables\Columns\TextColumn::make('total_regular_hours')
+                    ->label('Regular Hours')
+                    ->sortable()
+                    ->getStateUsing(function (User $record) use ($totalRegularHours) {
+                        return $totalRegularHours[$record->id] ?? 0;
+                    }),
+                Tables\Columns\TextColumn::make('total_overtime_hours')
+                    ->label('OT Hours')
+                    ->sortable()
+                    ->getStateUsing(function (User $record) use ($totalOvertimeHours) {
+                        return $totalOvertimeHours[$record->id] ?? 0;
+                    }),
             ])
             ->filters([
                 //

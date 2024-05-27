@@ -73,7 +73,8 @@
      public function getFormSchema(): array
      {
          return [
-             Forms\Components\TextArea::make('name'),
+             Forms\Components\TextArea::make('name')
+                ->label('Holiday/Announcement'),
  
              Forms\Components\Grid::make()
                  ->schema([

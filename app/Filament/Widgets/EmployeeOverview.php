@@ -28,7 +28,6 @@ class EmployeeOverview extends BaseWidget
 
     protected function getTotalPresents(): int
     {
-        // Query to count distinct users with a time-in entry for the current day
         return Schedule::whereDate('time_in', now()->toDateString())
             ->distinct('user_id')
             ->count('user_id');
@@ -36,7 +35,6 @@ class EmployeeOverview extends BaseWidget
 
     protected function getTotalAbsents(): int
     {
-        // Assuming you have a way to count total users and those with time-in for absentees
         $totalUsers = $this->getTotalUsers();
         $totalPresents = $this->getTotalPresents();
         return $totalUsers - $totalPresents;
@@ -58,7 +56,34 @@ class EmployeeOverview extends BaseWidget
 
     protected function getTotalUsers(): int
     {
-        // Assuming there's a User model and all users are scheduled each day
-        return \App\Models\User::count();
+        return User::count();
+    }
+
+    public static function getUserPresentDays(): array
+    {
+        return Schedule::select('user_id', DB::raw('COUNT(DISTINCT DATE(time_in)) as days_present'))
+            ->groupBy('user_id')
+            ->get()
+            ->pluck('days_present', 'user_id')
+            ->toArray();
+    }
+
+    public static function getTotalRegularHours(): array
+    {
+        return Schedule::select('user_id', DB::raw('SUM(TIMESTAMPDIFF(HOUR, time_in, time_out)) as total_hours'))
+            ->groupBy('user_id')
+            ->get()
+            ->pluck('total_hours', 'user_id')
+            ->toArray();
+    }
+
+    public static function getTotalOvertimeHours(): array
+    {
+        return Schedule::select('user_id', DB::raw('SUM(TIME_TO_SEC(TIMEDIFF(time_out, end_shift)) / 3600) as total_overtime_hours'))
+            ->whereRaw('TIME(time_out) > TIME(end_shift)')
+            ->groupBy('user_id')
+            ->get()
+            ->pluck('total_overtime_hours', 'user_id')
+            ->toArray();
     }
 }
