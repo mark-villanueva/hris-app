@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\LeaveRequest;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Models\Salary;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
@@ -67,23 +68,24 @@ class EmployeeOverview extends BaseWidget
             ->pluck('days_present', 'user_id')
             ->toArray();
     }
-
+    
     public static function getTotalRegularHours(): array
     {
-        return Schedule::select('user_id', DB::raw('SUM(TIMESTAMPDIFF(HOUR, time_in, time_out)) as total_hours'))
+        return Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(time_out, time_in)) / 3600), 2) as total_hours'))
             ->groupBy('user_id')
             ->get()
             ->pluck('total_hours', 'user_id')
             ->toArray();
-    }
+    }    
 
     public static function getTotalOvertimeHours(): array
     {
-        return Schedule::select('user_id', DB::raw('SUM(TIME_TO_SEC(TIMEDIFF(time_out, end_shift)) / 3600) as total_overtime_hours'))
-            ->whereRaw('TIME(time_out) > TIME(end_shift)')
+        return Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(TIME(time_out), end_shift)) / 3600), 2) as total_overtime_hours'))
+            ->whereRaw('TIME(time_out) > end_shift')
             ->groupBy('user_id')
             ->get()
             ->pluck('total_overtime_hours', 'user_id')
             ->toArray();
     }
+    
 }

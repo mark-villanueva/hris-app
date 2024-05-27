@@ -35,15 +35,15 @@ class Attendance extends Page implements HasForms, HasTable
             ->count();
     }
 
-    public function getTotalOvertime(): int
-    {
-        return Schedule::where('user_id', Auth::id())
-            ->where(function ($query) {
-                $query->whereRaw('TIME(time_out) > TIME(end_shift)')
-                      ->whereColumn('DATE(time_out)', 'DATE(start_date)');
-            })
-            ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(time_out, end_shift)) / 3600'));
-    }
+    // public function getTotalOvertime(): int
+    // {
+    //     return Schedule::where('user_id', Auth::id())
+    //         ->where(function ($query) {
+    //             $query->whereRaw('TIME(time_out) > TIME(end_shift)')
+    //                   ->whereColumn('DATE(time_out)', 'DATE(start_date)');
+    //         })
+    //         ->sum(DB::raw('TIME_TO_SEC(TIMEDIFF(time_out, end_shift)) / 3600'));
+    // }
     
     public function table(Table $table): Table
     {

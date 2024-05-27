@@ -19,4 +19,9 @@ class Salary extends Model
     {
         return $this->hasMany(Payroll::class);
     }
+
+    public function user(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 }

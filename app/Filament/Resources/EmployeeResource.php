@@ -5,6 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\Employee;
+use App\Models\User;
+use App\Models\Schedule;
+use App\Filament\Widgets\EmployeeOverview;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -121,8 +124,8 @@ class EmployeeResource extends Resource
                     ->columnSpan('full')
                     ->required(),
                 Forms\Components\Select::make('salary_id')
-                    ->label('Daily Rate')
-                    ->relationship('salary', 'daily_rate')
+                    ->label('Salary Type')
+                    ->relationship('salary', 'name')
                     ->preload()
                     ->searchable()
                     ->required(),   
@@ -142,6 +145,10 @@ class EmployeeResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $userPresentDays = EmployeeOverview::getUserPresentDays();
+        $totalRegularHours = EmployeeOverview::getTotalRegularHours();
+        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
+        
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.id')
@@ -168,9 +175,27 @@ class EmployeeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable(),
+                // Tables\Columns\TextColumn::make('salary.name')
+                //     ->label('Salary Type')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('salary.daily_rate')
                     ->label('Daily Rate')
                     ->searchable(),
+                // Tables\Columns\TextColumn::make('salary.hourly_rate')
+                //     ->label('Hourly Rate')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('salary.ot_rate')
+                //     ->label('OT Rate')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('gross_pay')
+                //     ->label('Gross Pay')
+                //     ->getStateUsing(function ($record) use ($totalRegularHours, $totalOvertimeHours) {
+                //         $userId = $record->user_id;
+                //         $regularHours = $totalRegularHours[$userId] ?? 0;
+                //         $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
+    
+                //         return self::calculateGrossPay($userId, $regularHours, $overtimeHours);
+                //     }),
             ])
             ->filters([
                 //
@@ -204,4 +229,17 @@ class EmployeeResource extends Resource
             'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
+
+    // public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
+    // {
+    //     $employee = Employee::where('user_id', $userId)->first();
+    //     $hourlyRate = $employee->salary->hourly_rate;
+    //     $otRate = $employee->salary->ot_rate;
+
+    //     $regularPay = $regularHours * $hourlyRate;
+    //     $overtimePay = $overtimeHours * $otRate;
+
+    //     return $regularPay + $overtimePay;
+    // }
+
 }
