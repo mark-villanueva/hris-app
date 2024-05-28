@@ -14,7 +14,7 @@
  
  class CalendarWidget extends FullCalendarWidget
  {
-     protected static ?int $sort = 2;
+     protected static ?int $sort = 3;
  
      public Model | string | null $model = Event::class;
  
@@ -24,7 +24,7 @@
  
          if (auth()->check() && auth()->user()->id == 1) {
              $actions[] = Actions\CreateAction::make()
-                 ->label('Add Holidays/Announcements')
+                 ->label('Add Holidays')
                  ->mountUsing(
                      function (Forms\Form $form, array $arguments) {
                          $form->fill([

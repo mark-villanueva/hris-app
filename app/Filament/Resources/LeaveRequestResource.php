@@ -26,17 +26,9 @@ class LeaveRequestResource extends Resource
         $user = Auth::user(); // Get the authenticated user here
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label('Employee name')
-                    ->relationship('user', 'name')
-                    ->options(
-                        function () use ($user) {
-                            // Return an array containing only the authenticated user
-                            return [$user->getKey() => $user->name];
-                        }
-                    )
-                    ->default($user->getKey()) // Set the default value to the authenticated user's ID
-                    ->required(),
+                Forms\Components\Hidden::make('user_id')
+                ->default($user->getKey()) // Set the default value to the authenticated user's ID
+                ->required(),
                 Forms\Components\Select::make('type')
                     ->required()
                     ->options([
@@ -50,8 +42,6 @@ class LeaveRequestResource extends Resource
                     ->required(),
                 Forms\Components\DatePicker::make('end_date')
                     ->required(),
-                Forms\Components\TextInput::make('status')
-                    ->maxLength(255),
             ]);
     }
 

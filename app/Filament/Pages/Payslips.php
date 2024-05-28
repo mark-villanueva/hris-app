@@ -1,38 +1,33 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Pages;
 
-use App\Filament\Resources\PayrollResource\Pages;
+use Filament\Pages\Page;
 use App\Models\User;
 use App\Models\Employee;
-use App\Models\Payroll;
 use App\Filament\Widgets\EmployeeOverview;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
+use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
-class PayrollResource extends Resource
+class Payslips extends Page implements HasForms, HasTable
 {
-    protected static ?string $model = Payroll::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?int $navigationSort = 5;
-    protected static ?string $title = 'Payroll';
-    protected static ?string $navigationLabel = 'Payroll';
-    protected ?string $heading = 'Payroll';
-    protected static ?string $navigationGroup = 'Admin Panel';
+    protected static ?int $navigationSort = 4;
 
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                // Form schema here
-            ]);
-    }
+    protected static string $view = 'filament.pages.payslips';
 
-    public static function table(Table $table): Table
+    use InteractsWithTable;
+    use InteractsWithForms;
+
+    public function table(Table $table): Table
     {
         $userPresentDays = EmployeeOverview::getUserPresentDays();
         $totalRegularHours = EmployeeOverview::getTotalRegularHours();
@@ -41,6 +36,7 @@ class PayrollResource extends Resource
         return $table
             ->query(function () {
                 return User::query()
+                    ->where('user_id', Auth::id())
                     ->join('employees', 'users.id', '=', 'employees.user_id')
                     ->select('users.*', 'employees.*');
             })
@@ -104,32 +100,14 @@ class PayrollResource extends Resource
                     }),
             ])
             ->filters([
-                // Filters here
+                // ...
             ])
             ->actions([
-                // Table actions here
+                // ...
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // ...
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            // Relations here
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListPayrolls::route('/'),
-            'create' => Pages\CreatePayroll::route('/create'),
-            'edit' => Pages\EditPayroll::route('/{record}/edit'),
-        ];
     }
 
     public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
