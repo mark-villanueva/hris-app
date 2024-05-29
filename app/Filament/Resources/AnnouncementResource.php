@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Carbon;
 
 class AnnouncementResource extends Resource
 {
@@ -38,7 +40,7 @@ class AnnouncementResource extends Resource
                     ->autosize()
                     ->columnSpanFull()
                     ->required()
-                    ->maxLength(1024),
+                    ->maxLength(3000),
                 Forms\Components\Hidden::make('user_id')
                     ->default($user->getKey()) // Set the default value to the authenticated user's ID
                     ->required(),
@@ -55,6 +57,7 @@ class AnnouncementResource extends Resource
                     ->searchable(),
                 Panel::make([
                 Tables\Columns\TextColumn::make('announcement')
+                    ->limit(240)
                     ->searchable(),
                 ])->collapsible(),
                 // Tables\Columns\TextColumn::make('user.name'),
@@ -68,7 +71,15 @@ class AnnouncementResource extends Resource
                 'xl' => 1,
             ])
             ->filters([
-                //
+                Filter::make('today')
+                    ->label('Today')
+                    ->query(fn (Builder $query): Builder => $query->whereDate('created_at', Carbon::today())),
+                Filter::make('this_week')
+                    ->label('This Week')
+                    ->query(fn (Builder $query): Builder => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])),
+                Filter::make('this_month')
+                    ->label('This Month')
+                    ->query(fn (Builder $query): Builder => $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

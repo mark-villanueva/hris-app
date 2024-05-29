@@ -12,6 +12,9 @@ use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class Announcements extends BaseWidget
 {
@@ -24,15 +27,14 @@ class Announcements extends BaseWidget
             ->query(Announcement::query())
             ->columns([
                 Stack::make([
-                Tables\Columns\TextColumn::make('title')
-                    ->weight(FontWeight::Bold),
-                Panel::make([
-                Tables\Columns\TextColumn::make('announcement'),
-                ])->collapsible(),
-                // Tables\Columns\TextColumn::make('user.name'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->date(),
-                    // ->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('title')
+                        ->weight(FontWeight::Bold),
+                    Panel::make([
+                        Tables\Columns\TextColumn::make('announcement')
+                            ->limit(240),
+                    ])->collapsible(),
+                    Tables\Columns\TextColumn::make('created_at')
+                        ->date(),
                 ]),
             ])
             ->contentGrid([
@@ -40,7 +42,15 @@ class Announcements extends BaseWidget
                 'xl' => 1,
             ])
             ->filters([
-                //
+                Filter::make('today')
+                    ->label('Today')
+                    ->query(fn (Builder $query): Builder => $query->whereDate('created_at', Carbon::today())),
+                Filter::make('this_week')
+                    ->label('This Week')
+                    ->query(fn (Builder $query): Builder => $query->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])),
+                Filter::make('this_month')
+                    ->label('This Month')
+                    ->query(fn (Builder $query): Builder => $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])),
             ])
             ->actions([
                 ViewAction::make()
@@ -56,12 +66,5 @@ class Announcements extends BaseWidget
                             ->maxLength(1024),
                     ]),
             ]);
-            // ->bulkActions([
-            //     // Tables\Actions\BulkActionGroup::make([
-            //     //     Tables\Actions\DeleteBulkAction::make(),
-            //     // ]),
-            // ]);
-      
-            
     }
 }

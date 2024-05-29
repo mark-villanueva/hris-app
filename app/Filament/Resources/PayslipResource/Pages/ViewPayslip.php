@@ -8,6 +8,7 @@ use Filament\Resources\Pages\Page;
 use App\Models\User;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Filament\Widgets\EmployeeOverview;
 
 class ViewPayslip extends Page
