@@ -6,107 +6,60 @@ use App\Filament\Resources\PayrollResource;
 use Filament\Resources\Pages\Page;
 use App\Models\User;
 use App\Models\Employee;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Illuminate\Support\Facades\Route;
 use App\Filament\Widgets\EmployeeOverview;
 
-class ViewPayslip extends Page implements HasForms, HasTable
+class ViewPayslip extends Page
 {
-    use InteractsWithTable;
-    use InteractsWithForms;
-
     protected static string $resource = PayrollResource::class;
     protected static string $view = 'filament.resources.payroll-resource.pages.view-payslip';
 
-    public static function table(Table $table): Table
-    {
-        // Get the user ID from the route parameters
-        $userId = Route::current()->parameter('record');
+    public $user;
+    public $employee;
+    public $regularHours;
+    public $overtimeHours;
+    public $grossPay;
+    public $deductions;
+    public $allowance;
+    public $netPay;
 
+    public function mount(): void
+    {
+        $userId = Route::current()->parameter('record');
+        $this->user = User::findOrFail($userId);
+        $this->employee = Employee::where('user_id', $userId)->with('salary')->first();
+    
         $userPresentDays = EmployeeOverview::getUserPresentDays();
         $totalRegularHours = EmployeeOverview::getTotalRegularHours();
         $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
-
-        return $table
-            ->query(function () use ($userId) {
-                return User::query()
-                    ->join('employees', 'users.id', '=', 'employees.user_id')
-                    ->select('users.*', 'employees.*')
-                    ->where('users.id', $userId);
-            })
-            ->columns([
-                TextColumn::make('name')
-                    ->label('Employee')
-                    ->sortable(),
-                TextColumn::make('days_present')
-                    ->label('Days Present')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) use ($userPresentDays) {
-                        return $userPresentDays[$record->id] ?? 0;
-                    }),
-                TextColumn::make('total_regular_hours')
-                    ->label('Regular Hours')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalRegularHours) {
-                        return $totalRegularHours[$record->id] ?? 0;
-                    }),
-                TextColumn::make('total_overtime_hours')
-                    ->label('OT Hours')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalOvertimeHours) {
-                        return $totalOvertimeHours[$record->id] ?? 0;
-                    }),
-                TextColumn::make('gross_pay')
-                    ->label('Gross Pay')
-                    ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
-                        $userId = $record->id;
-                        $regularHours = $totalRegularHours[$userId] ?? 0;
-                        $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
-
-                        return self::calculateGrossPay($userId, $regularHours, $overtimeHours);
-                    }),
-                TextColumn::make('deductions')
-                    ->label('Deductions')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) {
-                        return self::calculateDeductions($record->id);
-                    }),
-                TextColumn::make('allowance')
-                    ->label('Allowance')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) {
-                        $employee = Employee::where('user_id', $record->id)->with('salary')->first();
-                        return $employee->salary->nta ?? 0;
-                    }),
-                TextColumn::make('net_pay')
-                    ->label('Net Pay')
-                    ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
-                        $userId = $record->id;
-                        $regularHours = $totalRegularHours[$userId] ?? 0;
-                        $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
-                        $grossPay = self::calculateGrossPay($userId, $regularHours, $overtimeHours);
-                        $deductions = self::calculateDeductions($userId);
-                        $employee = Employee::where('user_id', $userId)->with('salary')->first();
-                        $nta = $employee->salary->nta ?? 0;
-
-                        return $grossPay - $deductions + $nta;
-                    }),
-            ])
-            ->filters([
-                // Filters here
-            ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-            ]);
+    
+        $this->regularHours = $totalRegularHours[$userId] ?? 0;
+        $this->overtimeHours = $totalOvertimeHours[$userId] ?? 0;
+    
+        $this->regularPay = $this->calculateRegularPay($userId, $this->regularHours);
+        $this->overtimePay = $this->calculateOvertimePay($userId, $this->overtimeHours);
+        $this->grossPay = $this->regularPay + $this->overtimePay;
+        $this->deductions = $this->calculateDeductions($userId);
+        $this->allowance = $this->employee->salary->nta ?? 0;
+        $this->netPay = $this->grossPay - $this->deductions + $this->allowance;
     }
-
+    
+    protected function calculateRegularPay($userId, $regularHours): float
+    {
+        $employee = Employee::where('user_id', $userId)->first();
+        $hourlyRate = $employee->salary->hourly_rate;
+    
+        return $regularHours * $hourlyRate;
+    }
+    
+    protected function calculateOvertimePay($userId, $overtimeHours): float
+    {
+        $employee = Employee::where('user_id', $userId)->first();
+        $otRate = $employee->salary->ot_rate;
+    
+        return $overtimeHours * $otRate;
+    }
+    
     public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
     {
         $employee = Employee::where('user_id', $userId)->first();
@@ -128,5 +81,21 @@ class ViewPayslip extends Page implements HasForms, HasTable
         $pagibig = $employee->salary->pagibig;
 
         return $bir + $sss + $philhealth + $pagibig;
+    }
+
+    protected function getViewData(): array
+    {
+        return [
+            'user' => $this->user,
+            'employee' => $this->employee,
+            'regularHours' => $this->regularHours,
+            'regularPay' => $this->regularPay,
+            'overtimePay' => $this->overtimePay,
+            'overtimeHours' => $this->overtimeHours,
+            'grossPay' => $this->grossPay,
+            'deductions' => $this->deductions,
+            'allowance' => $this->allowance,
+            'netPay' => $this->netPay,
+        ];
     }
 }

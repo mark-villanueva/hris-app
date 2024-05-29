@@ -74,7 +74,7 @@
      {
          return [
              Forms\Components\TextArea::make('name')
-                ->label('Holiday/Announcement'),
+                ->label('Holiday'),
  
              Forms\Components\Grid::make()
                  ->schema([

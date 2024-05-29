@@ -60,8 +60,7 @@ class AnnouncementResource extends Resource
                 // Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 ]),
             ])
             ->contentGrid([
