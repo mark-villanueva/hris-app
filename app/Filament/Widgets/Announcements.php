@@ -3,12 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Announcement;
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Actions\ViewAction;
 
 class Announcements extends BaseWidget
 {
@@ -26,8 +29,7 @@ class Announcements extends BaseWidget
                 Panel::make([
                 Tables\Columns\TextColumn::make('announcement'),
                 ])->collapsible(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('By'),
+                // Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date(),
                     // ->toggleable(isToggledHiddenByDefault: true),
@@ -39,11 +41,21 @@ class Announcements extends BaseWidget
             ])
             ->filters([
                 //
+            ])
+            ->actions([
+                ViewAction::make()
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->columnSpanFull()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextArea::make('announcement')
+                            ->autosize()
+                            ->columnSpanFull()
+                            ->required()
+                            ->maxLength(1024),
+                    ]),
             ]);
-            // ->actions([
-            //     // Tables\Actions\EditAction::make(),
-            //     // Tables\Actions\DeleteAction::make(),
-            // ])
             // ->bulkActions([
             //     // Tables\Actions\BulkActionGroup::make([
             //     //     Tables\Actions\DeleteBulkAction::make(),

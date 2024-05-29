@@ -31,11 +31,14 @@ class AnnouncementResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
+                    ->columnSpanFull()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextArea::make('announcement')
+                    ->autosize()
+                    ->columnSpanFull()
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(1024),
                 Forms\Components\Hidden::make('user_id')
                     ->default($user->getKey()) // Set the default value to the authenticated user's ID
                     ->required(),
@@ -54,9 +57,7 @@ class AnnouncementResource extends Resource
                 Tables\Columns\TextColumn::make('announcement')
                     ->searchable(),
                 ])->collapsible(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('By')
-                    ->sortable(),
+                // Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date()
                     ->sortable()

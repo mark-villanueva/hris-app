@@ -1,73 +1,68 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\PayrollResource\Pages;
 
-use App\Filament\Resources\PayrollResource\Pages;
+use App\Filament\Resources\PayrollResource;
+use Filament\Resources\Pages\Page;
 use App\Models\User;
 use App\Models\Employee;
-use App\Models\Payroll;
-use App\Filament\Widgets\EmployeeOverview;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Illuminate\Support\Facades\Route;
+use App\Filament\Widgets\EmployeeOverview;
 
-class PayrollResource extends Resource
+class ViewPayslip extends Page implements HasForms, HasTable
 {
-    protected static ?string $model = Payroll::class;
+    use InteractsWithTable;
+    use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?int $navigationSort = 5;
-    protected static ?string $title = 'Payroll';
-    protected static ?string $navigationLabel = 'Payroll';
-    protected ?string $heading = 'Payroll';
-    protected static ?string $navigationGroup = 'Admin Panel';
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                // Form schema here
-            ]);
-    }
+    protected static string $resource = PayrollResource::class;
+    protected static string $view = 'filament.resources.payroll-resource.pages.view-payslip';
 
     public static function table(Table $table): Table
     {
+        // Get the user ID from the route parameters
+        $userId = Route::current()->parameter('record');
+
         $userPresentDays = EmployeeOverview::getUserPresentDays();
         $totalRegularHours = EmployeeOverview::getTotalRegularHours();
         $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
 
         return $table
-            ->query(function () {
+            ->query(function () use ($userId) {
                 return User::query()
                     ->join('employees', 'users.id', '=', 'employees.user_id')
-                    ->select('users.*', 'employees.*');
+                    ->select('users.*', 'employees.*')
+                    ->where('users.id', $userId);
             })
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Employee')
-                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('days_present')
+                TextColumn::make('days_present')
                     ->label('Days Present')
                     ->sortable()
                     ->getStateUsing(function (User $record) use ($userPresentDays) {
                         return $userPresentDays[$record->id] ?? 0;
                     }),
-                Tables\Columns\TextColumn::make('total_regular_hours')
+                TextColumn::make('total_regular_hours')
                     ->label('Regular Hours')
                     ->sortable()
                     ->getStateUsing(function (User $record) use ($totalRegularHours) {
                         return $totalRegularHours[$record->id] ?? 0;
                     }),
-                Tables\Columns\TextColumn::make('total_overtime_hours')
+                TextColumn::make('total_overtime_hours')
                     ->label('OT Hours')
                     ->sortable()
                     ->getStateUsing(function (User $record) use ($totalOvertimeHours) {
                         return $totalOvertimeHours[$record->id] ?? 0;
                     }),
-                Tables\Columns\TextColumn::make('gross_pay')
+                TextColumn::make('gross_pay')
                     ->label('Gross Pay')
                     ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
                         $userId = $record->id;
@@ -76,20 +71,20 @@ class PayrollResource extends Resource
 
                         return self::calculateGrossPay($userId, $regularHours, $overtimeHours);
                     }),
-                Tables\Columns\TextColumn::make('deductions')
+                TextColumn::make('deductions')
                     ->label('Deductions')
                     ->sortable()
                     ->getStateUsing(function (User $record) {
                         return self::calculateDeductions($record->id);
                     }),
-                Tables\Columns\TextColumn::make('allowance')
+                TextColumn::make('allowance')
                     ->label('Allowance')
                     ->sortable()
                     ->getStateUsing(function (User $record) {
                         $employee = Employee::where('user_id', $record->id)->with('salary')->first();
                         return $employee->salary->nta ?? 0;
                     }),
-                Tables\Columns\TextColumn::make('net_pay')
+                TextColumn::make('net_pay')
                     ->label('Net Pay')
                     ->sortable()
                     ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
@@ -108,25 +103,8 @@ class PayrollResource extends Resource
                 // Filters here
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
             ]);
-            
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            // Relations here
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListPayrolls::route('/'),
-            // 'create' => Pages\CreatePayroll::route('/create'),
-            'view' => Pages\ViewPayslip::route('/{record}/view'),
-        ];
     }
 
     public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
