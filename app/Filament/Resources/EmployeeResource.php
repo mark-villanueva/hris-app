@@ -121,7 +121,6 @@ class EmployeeResource extends Resource
                     ->searchable()
                     ->required(),   
                 Forms\Components\TextArea::make('description')
-                    ->columnSpan('full')
                     ->required(),
                 Forms\Components\Select::make('salary_id')
                     ->label('Salary Type')

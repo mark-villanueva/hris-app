@@ -39,5 +39,10 @@ class Employee extends Model
     {
         return $this->belongsTo(Payroll::class);
     }
+
+    public function payslip(): BelongsTo
+    {
+        return $this->belongsTo(Payslip::class);
+    }
     
 }

@@ -20,6 +20,11 @@ class Salary extends Model
         return $this->hasMany(Payroll::class);
     }
 
+    public function payslip(): HasMany
+    {
+        return $this->hasMany(Payslip::class);
+    }
+
     public function user(): HasMany
     {
         return $this->hasMany(User::class);

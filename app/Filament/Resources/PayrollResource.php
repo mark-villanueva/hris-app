@@ -7,8 +7,6 @@ use App\Models\User;
 use App\Models\Employee;
 use App\Models\Payroll;
 use App\Filament\Widgets\EmployeeOverview;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,14 +21,6 @@ class PayrollResource extends Resource
     protected static ?string $navigationLabel = 'Payroll';
     protected ?string $heading = 'Payroll';
     protected static ?string $navigationGroup = 'Admin Panel';
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                // Form schema here
-            ]);
-    }
 
     public static function table(Table $table): Table
     {
@@ -124,7 +114,6 @@ class PayrollResource extends Resource
     {
         return [
             'index' => Pages\ListPayrolls::route('/'),
-            // 'create' => Pages\CreatePayroll::route('/create'),
             'view' => Pages\ViewPayslip::route('/{record}/view'),
         ];
     }

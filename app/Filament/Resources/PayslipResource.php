@@ -1,33 +1,27 @@
 <?php
+namespace App\Filament\Resources;
 
-namespace App\Filament\Pages;
-
-use Filament\Pages\Page;
+use App\Filament\Resources\PayslipResource\Pages;
+use App\Filament\Resources\PayslipResource\RelationManagers;
+use App\Models\Payslip;
 use App\Models\User;
 use App\Models\Employee;
 use App\Filament\Widgets\EmployeeOverview;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Contracts\View\View;
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
-class Payslips extends Page implements HasForms, HasTable
+class PayslipResource extends Resource
 {
+    protected static ?string $model = Payslip::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?int $navigationSort = 4;
 
-    protected static string $view = 'filament.pages.payslips';
-
-    use InteractsWithTable;
-    use InteractsWithForms;
-
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         $userPresentDays = EmployeeOverview::getUserPresentDays();
         $totalRegularHours = EmployeeOverview::getTotalRegularHours();
@@ -35,14 +29,16 @@ class Payslips extends Page implements HasForms, HasTable
 
         return $table
             ->query(function () {
+                $userId = Auth::id(); // Get the authenticated user's ID
                 return User::query()
-                    ->where('user_id', Auth::id())
                     ->join('employees', 'users.id', '=', 'employees.user_id')
+                    ->where('users.id', $userId) // Filter by authenticated user's ID
                     ->select('users.*', 'employees.*');
             })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Employee')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('days_present')
                     ->label('Days Present')
@@ -100,14 +96,19 @@ class Payslips extends Page implements HasForms, HasTable
                     }),
             ])
             ->filters([
-                // ...
+                // Filters here
             ])
             ->actions([
-                // ...
-            ])
-            ->bulkActions([
-                // ...
+                Tables\Actions\ViewAction::make(),
             ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListPayslips::route('/'),
+            'view' => Pages\ViewPayslip::route('/{record}/view'),
+        ];
     }
 
     public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
