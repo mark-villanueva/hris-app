@@ -91,7 +91,7 @@ class ViewPayslip extends Page
             Actions\Action::make('downloadPdf')
                 ->label('Download PDF')
                 ->url(fn () => route('payslip.download', $this->user->id))
-                ->color('success')
+                ->color('primary')
         ];
     }
 
