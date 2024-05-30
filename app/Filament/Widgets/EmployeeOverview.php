@@ -60,34 +60,47 @@ class EmployeeOverview extends BaseWidget
         return User::count();
     }
 
-    public static function getUserPresentDays(): array
+    public static function getUserPresentDays($startDate = null, $endDate = null): array
     {
-        return Schedule::select('user_id', DB::raw('COUNT(DISTINCT DATE(time_in)) as days_present'))
-            ->groupBy('user_id')
-            ->get()
+        $query = Schedule::select('user_id', DB::raw('COUNT(DISTINCT DATE(time_in)) as days_present'))
+            ->groupBy('user_id');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('time_in', [$startDate, $endDate]);
+        }
+
+        return $query->get()
             ->pluck('days_present', 'user_id')
             ->toArray();
     }
     
-    public static function getTotalRegularHours(): array
+    public static function getTotalRegularHours($startDate = null, $endDate = null): array
     {
-        return Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(time_out, time_in)) / 3600), 2) as total_hours'))
-            ->groupBy('user_id')
-            ->get()
+        $query = Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(time_out, time_in)) / 3600), 2) as total_hours'))
+            ->groupBy('user_id');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('time_in', [$startDate, $endDate]);
+        }
+
+        return $query->get()
             ->pluck('total_hours', 'user_id')
             ->toArray();
     }    
 
-    public static function getTotalOvertimeHours(): array
+    public static function getTotalOvertimeHours($startDate = null, $endDate = null): array
     {
-        return Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(TIME(time_out), end_shift)) / 3600), 2) as total_overtime_hours'))
+        $query = Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(TIME(time_out), end_shift)) / 3600), 2) as total_overtime_hours'))
             ->whereRaw('TIME(time_out) > end_shift')
             ->whereDate('time_out', 'end_date')
-            ->groupBy('user_id')
-            ->get()
+            ->groupBy('user_id');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('time_in', [$startDate, $endDate]);
+        }
+
+        return $query->get()
             ->pluck('total_overtime_hours', 'user_id')
             ->toArray();
     }
-    
-    
 }
