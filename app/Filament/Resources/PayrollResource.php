@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PayrollResource\Pages;
 use App\Models\User;
 use App\Models\Employee;
+use App\Models\Schedule;
 use App\Models\Payroll;
 use App\Filament\Widgets\EmployeeOverview;
 use Filament\Resources\Resource;

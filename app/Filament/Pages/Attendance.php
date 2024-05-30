@@ -65,8 +65,15 @@ class Attendance extends Page implements HasForms, HasTable
                     ->getStateUsing(function ($record) {
                         $endShift = Carbon::parse($record->start_date . ' ' . $record->end_shift);
                         $timeOut = Carbon::parse($record->time_out);
+                
+                        // Check if the date of time_out matches end_date
+                        if ($timeOut->toDateString() !== $record->end_date) {
+                            return 'No';
+                        }
+                
                         return $timeOut->greaterThan($endShift) ? 'Yes' : 'No';
                     }),
+                
             ])
             ->filters([
                 // ...

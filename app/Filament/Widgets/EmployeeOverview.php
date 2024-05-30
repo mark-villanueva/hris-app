@@ -82,10 +82,12 @@ class EmployeeOverview extends BaseWidget
     {
         return Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(TIME(time_out), end_shift)) / 3600), 2) as total_overtime_hours'))
             ->whereRaw('TIME(time_out) > end_shift')
+            ->whereDate('time_out', 'end_date')
             ->groupBy('user_id')
             ->get()
             ->pluck('total_overtime_hours', 'user_id')
             ->toArray();
     }
+    
     
 }

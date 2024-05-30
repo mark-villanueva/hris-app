@@ -85,6 +85,16 @@ class ViewPayslip extends Page
         return $bir + $sss + $philhealth + $pagibig;
     }
 
+    protected function getActions(): array
+    {
+        return [
+            Actions\Action::make('downloadPdf')
+                ->label('Download PDF')
+                ->url(fn () => route('payslip.download', $this->user->id))
+                ->color('success')
+        ];
+    }
+
     protected function getViewData(): array
     {
         return [
