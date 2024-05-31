@@ -59,7 +59,6 @@ class EmployeeOverview extends BaseWidget
     {
         return User::count();
     }
-
     public static function getUserPresentDays($startDate = null, $endDate = null): array
     {
         $query = Schedule::select('user_id', DB::raw('COUNT(DISTINCT DATE(time_in)) as days_present'))
@@ -73,7 +72,7 @@ class EmployeeOverview extends BaseWidget
             ->pluck('days_present', 'user_id')
             ->toArray();
     }
-    
+
     public static function getTotalRegularHours($startDate = null, $endDate = null): array
     {
         $query = Schedule::select('user_id', DB::raw('ROUND(SUM(TIME_TO_SEC(TIMEDIFF(time_out, time_in)) / 3600), 2) as total_hours'))
@@ -86,7 +85,7 @@ class EmployeeOverview extends BaseWidget
         return $query->get()
             ->pluck('total_hours', 'user_id')
             ->toArray();
-    }    
+    }
 
     public static function getTotalOvertimeHours($startDate = null, $endDate = null): array
     {
@@ -96,7 +95,7 @@ class EmployeeOverview extends BaseWidget
             ->groupBy('user_id');
 
         if ($startDate && $endDate) {
-            $query->whereBetween('time_in', [$startDate, $endDate]);
+            $query->whereBetween('time_out', [$startDate, $endDate]);
         }
 
         return $query->get()

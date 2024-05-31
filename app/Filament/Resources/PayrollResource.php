@@ -11,6 +11,11 @@ use App\Filament\Widgets\EmployeeOverview;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Request;
+use Filament\Tables\Enums\FiltersLayout;
 
 class PayrollResource extends Resource
 {
@@ -25,10 +30,6 @@ class PayrollResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $userPresentDays = EmployeeOverview::getUserPresentDays();
-        $totalRegularHours = EmployeeOverview::getTotalRegularHours();
-        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
-
         return $table
             ->query(function () {
                 return User::query()
@@ -43,25 +44,46 @@ class PayrollResource extends Resource
                 Tables\Columns\TextColumn::make('days_present')
                     ->label('Days Present')
                     ->sortable()
-                    ->getStateUsing(function (User $record) use ($userPresentDays) {
+                    ->getStateUsing(function (User $record) {
+                        $userPresentDays = EmployeeOverview::getUserPresentDays(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
                         return $userPresentDays[$record->id] ?? 0;
                     }),
                 Tables\Columns\TextColumn::make('total_regular_hours')
                     ->label('Regular Hours')
                     ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalRegularHours) {
+                    ->getStateUsing(function (User $record) {
+                        $totalRegularHours = EmployeeOverview::getTotalRegularHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
                         return $totalRegularHours[$record->id] ?? 0;
                     }),
                 Tables\Columns\TextColumn::make('total_overtime_hours')
                     ->label('OT Hours')
                     ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalOvertimeHours) {
+                    ->getStateUsing(function (User $record) {
+                        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
                         return $totalOvertimeHours[$record->id] ?? 0;
                     }),
                 Tables\Columns\TextColumn::make('gross_pay')
                     ->label('Gross Pay')
-                    ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
+                    ->getStateUsing(function (User $record) {
                         $userId = $record->id;
+                        $totalRegularHours = EmployeeOverview::getTotalRegularHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
+                        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
+
                         $regularHours = $totalRegularHours[$userId] ?? 0;
                         $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
 
@@ -83,8 +105,17 @@ class PayrollResource extends Resource
                 Tables\Columns\TextColumn::make('net_pay')
                     ->label('Net Pay')
                     ->sortable()
-                    ->getStateUsing(function (User $record) use ($totalRegularHours, $totalOvertimeHours) {
+                    ->getStateUsing(function (User $record) {
                         $userId = $record->id;
+                        $totalRegularHours = EmployeeOverview::getTotalRegularHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
+                        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours(
+                            Request::query('tableFilters.date_range.start_date'),
+                            Request::query('tableFilters.date_range.end_date')
+                        );
+
                         $regularHours = $totalRegularHours[$userId] ?? 0;
                         $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
                         $grossPay = self::calculateGrossPay($userId, $regularHours, $overtimeHours);
@@ -94,14 +125,41 @@ class PayrollResource extends Resource
 
                         return $grossPay - $deductions + $nta;
                     }),
+                // Tables\Columns\TextColumn::make('cut_off_data')
+                //     ->label('Cut Off Data')
+                //     ->getStateUsing(function () {
+                //         $startDate = Request::input('tableFilters.date_range.start_date');
+                //         $endDate = Request::input('tableFilters.date_range.end_date');
+                //         if ($startDate && $endDate) {
+                //             return date('Y-m-d', strtotime($startDate)) . ' to ' . date('Y-m-d', strtotime($endDate));
+                //         }
+                //         return 'N/A';
+                //     }),
             ])
             ->filters([
-                // Filters here
-            ])
+                Filter::make('date_range')
+                    ->form([
+                        DatePicker::make('start_date')
+                            ->label('Salary Cut Off Start Date')
+                            ->required(),
+                        DatePicker::make('end_date')
+                            ->label('Salary Cut Off End Date')
+                            ->required(),
+                    ])->columns(2)
+                    ->columnSpanFull()
+                    ->query(function (Builder $query, array $data) {
+                        if (isset($data['start_date']) && isset($data['end_date'])) {
+                            $startDate = $data['start_date'];
+                            $endDate = $data['end_date'];
+                            $query->whereHas('schedule', function (Builder $query) use ($startDate, $endDate) {
+                                $query->whereBetween('time_in', [$startDate, $endDate]);
+                            });
+                        }
+                    }),
+            ], layout: FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ]);
-            
     }
 
     public static function getRelations(): array
