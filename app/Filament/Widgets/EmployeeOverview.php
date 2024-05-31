@@ -10,6 +10,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Carbon\Carbon;
 
 class EmployeeOverview extends BaseWidget
 {
@@ -29,7 +30,9 @@ class EmployeeOverview extends BaseWidget
 
     protected function getTotalPresents(): int
     {
-        return Schedule::whereDate('time_in', now()->toDateString())
+        $timezone = 'Asia/Manila';
+        $today = Carbon::now()->timezone($timezone)->toDateString();
+        return Schedule::whereDate('time_in', $today)
             ->distinct('user_id')
             ->count('user_id');
     }
@@ -59,6 +62,7 @@ class EmployeeOverview extends BaseWidget
     {
         return User::count();
     }
+    
     public static function getUserPresentDays($startDate = null, $endDate = null): array
     {
         $query = Schedule::select('user_id', DB::raw('COUNT(DISTINCT DATE(time_in)) as days_present'))

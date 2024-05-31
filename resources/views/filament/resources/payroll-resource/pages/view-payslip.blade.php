@@ -1,8 +1,8 @@
 <x-filament-panels::page>
     <div class="payslip-container">
-        
         <div class="employee-details">
             <p><strong>Employee Name:</strong> {{ $user->name }}</p>
+            <!-- <p><strong>Cut Off Date:</strong> {{ $cutOffStartDate }} to {{ $cutOffEndDate }}</p> -->
         </div>
         
         <table class="payslip-table">
@@ -91,27 +91,28 @@
         </table>
     </div>
 
-<style>
-.payslip-container {
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    max-width: 600px;
-    margin: auto;
-}
+    <style>
+        .payslip-container {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: auto;
+        }
 
-.payslip-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
+        .payslip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-.payslip-table th, .payslip-table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-</style>
-
+        .payslip-table th, .payslip-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
 </x-filament-panels::page>
+
+

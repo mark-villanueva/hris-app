@@ -125,16 +125,6 @@ class PayrollResource extends Resource
 
                         return $grossPay - $deductions + $nta;
                     }),
-                // Tables\Columns\TextColumn::make('cut_off_data')
-                //     ->label('Cut Off Data')
-                //     ->getStateUsing(function () {
-                //         $startDate = Request::input('tableFilters.date_range.start_date');
-                //         $endDate = Request::input('tableFilters.date_range.end_date');
-                //         if ($startDate && $endDate) {
-                //             return date('Y-m-d', strtotime($startDate)) . ' to ' . date('Y-m-d', strtotime($endDate));
-                //         }
-                //         return 'N/A';
-                //     }),
             ])
             ->filters([
                 Filter::make('date_range')
@@ -145,7 +135,8 @@ class PayrollResource extends Resource
                         DatePicker::make('end_date')
                             ->label('Salary Cut Off End Date')
                             ->required(),
-                    ])->columns(2)
+                    ])
+                    ->columns(2)
                     ->columnSpanFull()
                     ->query(function (Builder $query, array $data) {
                         if (isset($data['start_date']) && isset($data['end_date'])) {

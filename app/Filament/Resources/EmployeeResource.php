@@ -120,14 +120,13 @@ class EmployeeResource extends Resource
                     ->preload()
                     ->searchable()
                     ->required(),   
-                Forms\Components\TextArea::make('description')
-                    ->required(),
+                Forms\Components\TextArea::make('description'),
                 Forms\Components\Select::make('salary_id')
                     ->label('Salary Type')
                     ->relationship('salary', 'name')
                     ->preload()
                     ->searchable()
-                    ->required(),   
+                    ->required(), 
                 Forms\Components\Select::make('status')
                     ->required()
                     ->options([
@@ -174,27 +173,15 @@ class EmployeeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('salary.name')
-                //     ->label('Salary Type')
-                //     ->searchable(),
+                Tables\Columns\TextColumn::make('salary.id')
+                    ->label('Salary Id')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('salary.name')
+                    ->label('Salary Type')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('salary.daily_rate')
                     ->label('Daily Rate')
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('salary.hourly_rate')
-                //     ->label('Hourly Rate')
-                //     ->searchable(),
-                // Tables\Columns\TextColumn::make('salary.ot_rate')
-                //     ->label('OT Rate')
-                //     ->searchable(),
-                // Tables\Columns\TextColumn::make('gross_pay')
-                //     ->label('Gross Pay')
-                //     ->getStateUsing(function ($record) use ($totalRegularHours, $totalOvertimeHours) {
-                //         $userId = $record->user_id;
-                //         $regularHours = $totalRegularHours[$userId] ?? 0;
-                //         $overtimeHours = $totalOvertimeHours[$userId] ?? 0;
-    
-                //         return self::calculateGrossPay($userId, $regularHours, $overtimeHours);
-                //     }),
             ])
             ->filters([
                 //

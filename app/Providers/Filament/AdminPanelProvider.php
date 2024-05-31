@@ -70,6 +70,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentFullCalendarPlugin::make()
                     ->selectable()
+                    ->timezone('Asia/Manila')
                     ->editable(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
             ]);
