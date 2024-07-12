@@ -9,7 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSchedule extends CreateRecord
 {
     protected static string $resource = ScheduleResource::class;
-    // protected static ?string $title = 'Custom Page Title';
 
     protected static bool $canCreateAnother = false;
 
@@ -18,5 +17,10 @@ class CreateSchedule extends CreateRecord
         return [
             ScheduleResource\Widgets\CalendarWidget::class,
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }

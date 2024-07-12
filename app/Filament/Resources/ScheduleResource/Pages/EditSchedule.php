@@ -10,13 +10,6 @@ class EditSchedule extends EditRecord
 {
     protected static string $resource = ScheduleResource::class;
 
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         Actions\DeleteAction::make(),
-    //     ];
-    // }
-
     protected function getFooterWidgets(): array
     {
         return [
@@ -24,5 +17,8 @@ class EditSchedule extends EditRecord
         ];
     }
 
-    
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 }

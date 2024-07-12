@@ -14,4 +14,5 @@ class CreateAnnouncement extends CreateRecord
     {
         return 'Announcement Created';
     }
+    
 }
