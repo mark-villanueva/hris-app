@@ -51,7 +51,8 @@ class DepartmentsResource extends Resource
                 TextColumn::make('department')
                     ->label('Department Name'),
                 TextColumn::make('manager'),
-                TextColumn::make('description'),
+                TextColumn::make('description')
+                    ->wrap(),
                 TextColumn::make('created_at')
             ])
             ->filters([

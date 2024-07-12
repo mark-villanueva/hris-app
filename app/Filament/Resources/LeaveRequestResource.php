@@ -72,6 +72,7 @@ class LeaveRequestResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->wrap()
                     ->searchable(),
 
             ])
