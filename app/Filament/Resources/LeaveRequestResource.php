@@ -34,8 +34,10 @@ class LeaveRequestResource extends Resource
                     ->options([
                         'Sick Leave' => 'Sick Leave',
                         'Maternity Leave' => 'Maternity Leave',
-                        'Vacation Leave' => 'Vacation Leave',
-                        'Birthday Leave' => 'Birthday Leave',
+                        'Paternity Leave' => 'Paternity Leave',
+                        'Parental Leave' => 'Parental Leave',
+                        'Family & Medical Leave' => 'Family & Medical Leave',
+                        'Bereavement Leave' => 'Bereavement Leave',
                     ])
                     ->native(false),
                 Forms\Components\DatePicker::make('start_date')
@@ -72,7 +74,6 @@ class LeaveRequestResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->wrap()
                     ->searchable(),
 
             ])
