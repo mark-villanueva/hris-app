@@ -25,7 +25,6 @@ class AnnouncementResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
     protected static ?int $navigationSort = 6;
-    protected static ?string $navigationGroup = 'Admin Panel';
 
     public static function form(Form $form): Form
     {

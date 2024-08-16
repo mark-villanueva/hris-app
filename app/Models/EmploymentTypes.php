@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Employee extends Model
+class EmploymentTypes extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function employmenttypes(): BelongsTo
+    public function employee(): HasMany
     {
-        return $this->belongsTo(EmploymentTypes::class);
+        return $this->hasMany(Employee::class);
     }
 }

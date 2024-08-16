@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Employee extends Model
+class Department extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function employmenttypes(): BelongsTo
+    public function office(): BelongsTo
     {
-        return $this->belongsTo(EmploymentTypes::class);
+        return $this->belongsTo(Office::class);
     }
 }

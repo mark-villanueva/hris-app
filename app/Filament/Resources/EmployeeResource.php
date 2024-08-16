@@ -5,20 +5,11 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\Employee;
-use App\Models\User;
-use App\Models\Schedule;
-use App\Filament\Widgets\EmployeeOverview;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -26,16 +17,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationLabel = 'Employees';
-    protected static ?int $navigationSort = 3;
-    protected static ?string $navigationGroup = 'Admin Panel';
+    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'Company Settings';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Section::make('Government')
+                ->schema([
+                Forms\Components\TextInput::make('employee_number')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('last_name')
                     ->required()
                     ->maxLength(255),
@@ -45,115 +40,80 @@ class EmployeeResource extends Resource
                 Forms\Components\TextInput::make('middle_name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('gender')
-                    ->required()
-                    ->label('Sex')
-                    ->options([
-                        'male' => 'Male',
-                        'female' => 'Female',
-                    ])
-                    ->native(false),
-                Forms\Components\DatePicker::make('birth_date')
-                    ->required(),
-                Forms\Components\Select::make('civil_status')
-                    ->required()
-                    ->options([
-                        'single' => 'Single',
-                        'married' => 'Married',
-                        'widowed' => 'Widowed',
-                        'divorced' => 'Divorced',
-                    ])
-                    ->native(false),
-                Forms\Components\TextInput::make('mobile_number')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('address')
-                    ->required()
-                    ->columnSpan('full')
-                    ->maxLength(255),
-            Section::make()
-            ->schema([
-                Forms\Components\TextInput::make('tin')
-                    ->label('TIN'),
-                Forms\Components\TextInput::make('sss')
-                    ->label('SSS'),
-                Forms\Components\TextInput::make('philhealth')
-                    ->label('Philhealth'),
-                Forms\Components\TextInput::make('pagibig')
-                    ->label('Pag-Ibig'),
-                ])
-                ->columns(4),
-            Section::make('In case of emergency, contact:')
-            ->schema([
-                Forms\Components\TextInput::make('contact_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('contact_number')
+                Forms\Components\TextInput::make('office_id')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('relationship')
+                Forms\Components\TextInput::make('department_id')
                     ->required()
+                    ->numeric(),
+                Forms\Components\TextInput::make('position')
+                    ->maxLength(255),
+                Forms\Components\Select::make('employment_types_id')
+                    ->label('Employment Type')
+                    ->relationship('employmenttypes', 'employment_type')
+                    ->preload()
+                    ->searchable()
+                    ->required(),
+                Forms\Components\DatePicker::make('date_hired'),
+                Forms\Components\TextInput::make('biometric_id')
                     ->maxLength(255),
                 ])
-                ->columns(3),
-            Section::make('Employment Profile')
-            ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->label('User Name')
-                    ->relationship('user', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('departments_id')
-                    ->label('Department')
-                    ->relationship('departments', 'department')
-                    ->preload()
-                    ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('positions_id')
-                    ->label('Positions')
-                    ->relationship('positions', 'position')
-                    ->preload()
-                    ->searchable()
-                    ->required(),   
-                Forms\Components\TextArea::make('description'),
-                Forms\Components\Select::make('salary_id')
-                    ->label('Salary Type')
-                    ->relationship('salary', 'name')
-                    ->preload()
-                    ->searchable()
-                    ->required(), 
-                Forms\Components\Select::make('status')
-                    ->required()
+                ->columns(2),
+
+                Section::make('Payroll')
+                ->schema([
+                Forms\Components\Select::make('payment_type')
                     ->options([
-                        'Hired' => 'Hired',
-                        'Probatioary' => 'Probatioary',
-                        'Contract' => 'Contract'
+                        'monthly paid' => 'Monthly Paid',
+                        'daily paid' => 'Daily Paid',
                     ]),
-                Forms\Components\DatePicker::make('start_date'),
-                Forms\Components\DatePicker::make('end_date'),
+                Forms\Components\TextInput::make('monthly_basic_salary')
+                    ->prefix('Php')
+                    ->maxLength(255),
+                Forms\Components\Checkbox::make('monday_to_friday')
+                    ->required(),
+                Forms\Components\Checkbox::make('minimum_wage')
+                    ->required(),
+                Forms\Components\TextInput::make('payroll_group_id')
+                    ->required()
+                    ->numeric(),
                 ])
                 ->columns(2),
+
+                Section::make('Government')
+                ->schema([
+                Forms\Components\TextInput::make('tin')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('sss')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('philhealth')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('hdmf')
+                    ->maxLength(255),
+                ])
+                ->columns(2),
+
+                Section::make('Benefits')
+                ->schema([
+                Forms\Components\Checkbox::make('timesheet_required'),
+                Forms\Components\Checkbox::make('regular_holiday_pay'),
+                Forms\Components\Checkbox::make('special_holiday_pay'),
+                Forms\Components\Checkbox::make('premium_holiday_pay'),
+                Forms\Components\Checkbox::make('regular_special_holiday_pay'),
+                Forms\Components\Checkbox::make('restday_pay'),
+                Forms\Components\Checkbox::make('overtime_pay'),
+                Forms\Components\Checkbox::make('de_minimis'),
+                Forms\Components\Checkbox::make('night_differential'),
+                ])
+                ->columns(3),
             ]);
     }
 
     public static function table(Table $table): Table
     {
-        $userPresentDays = EmployeeOverview::getUserPresentDays();
-        $totalRegularHours = EmployeeOverview::getTotalRegularHours();
-        $totalOvertimeHours = EmployeeOverview::getTotalOvertimeHours();
-        
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.id')
-                    ->label('Id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Username')
+                Tables\Columns\TextColumn::make('employee_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
                     ->searchable(),
@@ -161,41 +121,83 @@ class EmployeeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('positions.position')
-                    ->label('Position')
+                Tables\Columns\TextColumn::make('office_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('department_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('position')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('employment_types_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('date_hired')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('biometric_id')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('payment_type')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('monthly_basic_salary')
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('monday_to_friday')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('minimum_wage')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('payroll_group_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tin')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('sss')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('philhealth')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('hdmf')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('timesheet_required')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('regular_holiday_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('special_holiday_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('premium_holiday_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('regular_special_holiday_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('restday_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('overtime_pay')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('de_minimis')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('night_differential')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('deleted_at')
+                    ->dateTime()
                     ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('departments.department')
-                    ->label('Department')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
                     ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('start_date')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('salary.id')
-                    ->label('Salary Id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('salary.name')
-                    ->label('Salary Type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('salary.daily_rate')
-                    ->label('Daily Rate')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
-                ]),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                    BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -216,16 +218,11 @@ class EmployeeResource extends Resource
         ];
     }
 
-    // public static function calculateGrossPay($userId, $regularHours, $overtimeHours): float
-    // {
-    //     $employee = Employee::where('user_id', $userId)->first();
-    //     $hourlyRate = $employee->salary->hourly_rate;
-    //     $otRate = $employee->salary->ot_rate;
-
-    //     $regularPay = $regularHours * $hourlyRate;
-    //     $overtimePay = $overtimeHours * $otRate;
-
-    //     return $regularPay + $overtimePay;
-    // }
-
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
+    }
 }
