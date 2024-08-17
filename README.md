@@ -34,7 +34,7 @@ To get started, follow these steps:
 
 6. Migrate the database:
    ```bash
-   php artisan migrate:fresh
+   php artisan migrate
    ```
 
 7. Generate Permissions and/or Policies for Filament entities
