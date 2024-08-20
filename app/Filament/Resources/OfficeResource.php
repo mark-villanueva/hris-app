@@ -11,13 +11,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Support\Enums\FontWeight;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OfficeResource extends Resource
 {
     protected static ?string $model = Office::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationGroup = 'Company Settings';
 
@@ -26,9 +27,12 @@ class OfficeResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('office_name')
+                    ->placeholder('Type office name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('office_address')
+                    ->placeholder('Type office address')
+                    ->wrap()
                     ->required()
                     ->maxLength(255),
             ]);
@@ -38,7 +42,9 @@ class OfficeResource extends Resource
     {
         return $table
             ->columns([
+                Stack::make([
                 Tables\Columns\TextColumn::make('office_name')
+                    ->weight(FontWeight::Bold)
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('office_address')
@@ -46,11 +52,18 @@ class OfficeResource extends Resource
                     ->sortable()
                     ->searchable(),
             ])
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

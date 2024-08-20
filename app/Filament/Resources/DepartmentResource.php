@@ -11,13 +11,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Support\Enums\FontWeight;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationGroup = 'Company Settings';
 
@@ -26,6 +27,7 @@ class DepartmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('department_name')
+                    ->placeholder('Type department name')
                     ->required(),
             ]);
     }
@@ -34,15 +36,23 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
+                Stack::make([
                 Tables\Columns\TextColumn::make('department_name')
-                    ->sortable()
+                    ->weight(FontWeight::Bold)
                     ->searchable(),
             ])
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -40,8 +40,18 @@ class AdminPanelProvider extends PanelProvider
             ->profile(EditProfile::class)
             ->sidebarFullyCollapsibleOnDesktop()
             ->navigationGroups([
-                NavigationGroup::make('Admin Panel'),
-                NavigationGroup::make('User Management'),
+                NavigationGroup::make()
+                    ->label('Company Settings')
+                    ->icon('heroicon-o-cog-6-tooth'),
+                NavigationGroup::make()
+                    ->label('User Management')
+                    ->icon('heroicon-o-shield-check'),
+                NavigationGroup::make()
+                    ->label('Time & Attendance')
+                    ->icon('heroicon-o-clock'),
+                NavigationGroup::make()
+                    ->label('Payroll Management')
+                    ->icon('heroicon-o-banknotes'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

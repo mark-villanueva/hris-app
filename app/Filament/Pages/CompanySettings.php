@@ -20,7 +20,6 @@ class CompanySettings extends Page implements HasForms
     public ?array $data = [];
     public ?Company $company = null;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?int $navigationSort = 1;
     protected static ?string $title = 'Company';
     protected static ?string $navigationLabel = 'Company';
@@ -42,9 +41,11 @@ class CompanySettings extends Page implements HasForms
                 Section::make('')
                     ->schema([
                         Forms\Components\TextInput::make('company_name')
+                            ->placeholder('Type your company name')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('trade_name')
+                            ->placeholder('Type your company trade name')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Select::make('type')

@@ -18,7 +18,6 @@ class PayrollGroupResource extends Resource
 {
     protected static ?string $model = PayrollGroup::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationGroup = 'Payroll Management';
 
@@ -29,16 +28,25 @@ class PayrollGroupResource extends Resource
                 Section::make('')
                 ->schema([
                 Forms\Components\TextInput::make('payroll_group_name')
+                    ->placeholder('Type payroll group name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('days_per_year')
+                    ->placeholder('0')
+                    ->helperText('Number of days per year. Mon-Fri is 261. Mon-Sat is 313')
                     ->numeric(),
                 Forms\Components\TextInput::make('number_of_hours')
+                    ->placeholder('0')
+                    ->helperText('The required number of hours per day')
                     ->numeric(),
-                Forms\Components\TextInput::make('period')
+                Forms\Components\Select::make('period')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Checkbox::make('default'),
+                    ->options([
+                        'monthly' => 'Monthly',
+                        'semi-monthly' => 'Semi-Monthly',
+                    ]),
+                Forms\Components\Checkbox::make('default')
+                    ->label('Set as default'),
                 ])
                 ->columns(2),
 

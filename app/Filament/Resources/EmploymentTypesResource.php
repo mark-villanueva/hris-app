@@ -18,7 +18,6 @@ class EmploymentTypesResource extends Resource
 {
     protected static ?string $model = EmploymentTypes::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
     protected static ?int $navigationSort = 4;
     protected static ?string $navigationGroup = 'Company Settings';
 
@@ -28,6 +27,7 @@ class EmploymentTypesResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('employment_type')
                     ->required()
+                    ->placeholder('Type employment type')
                     ->maxLength(255),
                 Forms\Components\Checkbox::make('payroll')
                     ->required(),

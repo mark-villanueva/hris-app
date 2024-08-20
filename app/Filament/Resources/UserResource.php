@@ -17,7 +17,6 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationGroup = 'User Management';
 
@@ -26,14 +25,17 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->placeholder('Type user name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->placeholder('Type email address')
                     ->email()
                     ->unique()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
+                    ->placeholder('Type password')
                     ->password()
                     ->revealable()
                     ->required()

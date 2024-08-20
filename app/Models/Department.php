@@ -11,8 +11,8 @@ class Department extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public function office(): BelongsTo
+    public function employee(): HasMany
     {
-        return $this->belongsTo(Office::class);
+        return $this->hasMany(Employee::class);
     }
 }
